@@ -18,32 +18,12 @@ fun main(args: Array<String>) {
 }
 
 fun login(token: Token, settings: JDABuilder.() -> Unit = {}): JDA =
-    JDABuilder(token).apply(settings).build()
+        JDABuilder(token).apply(settings).build().apply { addEventListener(CommandManager) }
 
 
 val example = object : ListenerAdapter() {
     override fun onMessageReceived(event: MessageReceivedEvent) {
         if (!event.message.author.isBot)
-            event.channel
-                    .sendMessage(event.message.contentDisplay)
-                    .submit(true)
+            event.channel.sendMessage(event.message.contentDisplay).submit(true)
     }
-}
-
-open class Command(
-    private val command    : String,
-    private val description: String      = "Default description for $command",
-    private val type       : CommandType = CommandType.ANY
-) : ListenerAdapter() {
-
-    final override fun onMessageReceived(event: MessageReceivedEvent) {
-        // Skip over commands that don't fit the right channel type
-        if (!event.channelType.isGuild && type == CommandType.PRIVATE) {
-            return
-        }
-    }
-}
-
-enum class CommandType {
-    PRIVATE, GUILD, ANY
 }

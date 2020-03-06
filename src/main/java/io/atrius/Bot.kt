@@ -66,6 +66,7 @@ data class TextChannelRenderer(
 
     override fun render(map: Grid<Tile>, tileMap: CharTileMap) {
         // Enforce the discord character limit
+        val type = if (Random.nextBoolean()) "cs" else "fix"
         if (map.area.area > 1990)
             return
         var lines = ""
@@ -78,6 +79,6 @@ data class TextChannelRenderer(
         chars.forEach { c ->
             lines += "${c.map { "$it" }.reduce { a, b -> a + b }}\n"
         }
-        channel.sendMessage("Here's your dungeon!\n```cs\n$lines\n```").submit(true)
+        channel.sendMessage("Here's your dungeon!\n```$type\n$lines\n```").submit(true)
     }
 }

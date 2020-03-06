@@ -4,14 +4,12 @@ import io.atrius.CommandType.*
 import net.dv8tion.jda.api.entities.MessageChannel
 import net.dv8tion.jda.api.entities.User
 
-@Suppress("MemberVisibilityCanBePrivate")
 abstract class Command(
-        internal val command    : String,
-        internal val description: String      = "Default description for $command",
-        internal val type       : CommandType = ANY,
-        internal val permission : String?     = null
+        private val command    : String,
+        private val description: String      = "Default description for $command",
+        private val type       : CommandType = ANY,
+        private val permission : String?     = null
 ) {
-
     abstract fun execute(args: Array<String>, channel: MessageChannel, user: User)
 
     operator fun component1() = command

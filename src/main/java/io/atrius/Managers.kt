@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import java.util.logging.Logger
 import kotlin.math.min
 
 private typealias Token = String
@@ -27,6 +28,7 @@ object Bot {
 
 object CommandManager : Iterable<Command>, ListenerAdapter() {
 
+    private val logger   = Logger.getLogger("CM")
     private val commands = arrayListOf<Command>()
 
     val activeCommands: Int
@@ -38,8 +40,11 @@ object CommandManager : Iterable<Command>, ListenerAdapter() {
     fun unregister(vararg commands: Command) =
             this.commands.removeAll(commands)
 
-    override fun onMessageReceived(event: MessageReceivedEvent) {
-        val content = event.message.contentRaw
+    override fun onMessageReceived(event: MessageReceivedEvent) = event.run {
+        // Skip any bot accounts
+        if (author.isBot) return
+        // Process message
+        val content = message.contentRaw
         val args = content.split(" ").run {
             when {
                 isEmpty() -> emptyList()
@@ -47,13 +52,15 @@ object CommandManager : Iterable<Command>, ListenerAdapter() {
             }
         }
         // Loop over all commands
-        for (c in this) {
+        for (c in commands) {
             val (command, _, type) = c
             // Skip if the commands or channel type don't match
-            if (!content.startsWith("!$command", true) || !type.meets(event.channelType))
+            if (!content.startsWith("!$command", true) || !type.meets(channelType))
                 continue
             // Execute the command
-            c.execute(args.toTypedArray(), event.channel, event.author)
+            c.execute(args.toTypedArray(), channel, author)
+            logger.info("'$command' executed by ${author.name} in #${channel.name}")
+            return
         }
     }
 

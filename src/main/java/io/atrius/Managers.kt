@@ -7,13 +7,18 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import kotlin.math.min
 
+private typealias Token = String
+
 object Bot {
 
     lateinit var api: JDA
         private set
 
-    fun login(token: Token, settings: JDABuilder.() -> Unit = {}) {
-        JDABuilder(token).apply(settings).build().apply {
+    fun start(args: Array<String>, block: () -> Unit) = if (args.isEmpty())
+        error("Argument mismatch: [Token]") else login(args[0]).also { block() }
+
+    private fun login(token: Token) {
+        JDABuilder(token).build().apply {
             addEventListener(CommandManager)
             api = this
         }

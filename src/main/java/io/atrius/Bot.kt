@@ -4,15 +4,7 @@ import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.entities.MessageChannel
 import net.dv8tion.jda.api.entities.User
 
-typealias Token =
-        String
-
-fun main(args: Array<String>) {
-    if (args.isNotEmpty())
-        Bot.login(args[0])
-    else
-        error("Argument mismatch: [Token]")
-    // Register commands
+fun main(args: Array<String>) = Bot.start(args) {
     CommandManager.register(Example, Status)
 }
 

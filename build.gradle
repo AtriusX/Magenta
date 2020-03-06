@@ -17,6 +17,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "net.dv8tion:JDA:4.1.1_110"
+    compile files("../Dungeon-Kit/build/libs/Dungeon-Kit-jvm-0.0.1.jar")
 }
 compileKotlin {
     kotlinOptions {

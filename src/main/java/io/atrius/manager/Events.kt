@@ -1,6 +1,6 @@
 package io.atrius.manager
 
-import io.atrius.Listener
+import io.atrius.action.Listener
 
 object Events {
 

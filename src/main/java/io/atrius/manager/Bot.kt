@@ -1,8 +1,8 @@
 package io.atrius.manager
 
-import io.atrius.BotAction
-import io.atrius.Command
-import io.atrius.Listener
+import io.atrius.action.BotAction
+import io.atrius.action.Command
+import io.atrius.action.Listener
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 
@@ -25,7 +25,7 @@ object Bot {
 
     fun register(vararg actions: BotAction) {
         for (action in actions) when(action) {
-            is Command  -> Commands.register(action)
+            is Command -> Commands.register(action)
             is Listener -> Events.register(action)
         }
     }

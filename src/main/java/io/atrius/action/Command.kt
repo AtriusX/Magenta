@@ -1,6 +1,7 @@
-package io.atrius
+package io.atrius.action
 
-import io.atrius.CommandType.*
+import io.atrius.CommandType
+import io.atrius.CommandType.ANY
 import io.atrius.manager.Bot
 import net.dv8tion.jda.api.entities.MessageChannel
 import net.dv8tion.jda.api.entities.User
@@ -23,6 +24,3 @@ abstract class Command(
 
     operator fun component4() = permission
 }
-
-val MessageChannel.context: CommandType
-    get() = if (type.isGuild) GUILD else PRIVATE

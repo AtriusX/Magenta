@@ -1,6 +1,6 @@
 package io.atrius.manager
 
-import io.atrius.Command
+import io.atrius.action.Command
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import java.util.logging.Logger

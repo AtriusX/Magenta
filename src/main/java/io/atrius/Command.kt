@@ -1,6 +1,7 @@
 package io.atrius
 
 import io.atrius.CommandType.*
+import io.atrius.manager.Bot
 import net.dv8tion.jda.api.entities.MessageChannel
 import net.dv8tion.jda.api.entities.User
 
@@ -9,7 +10,9 @@ abstract class Command(
         private val description: String      = "Default description for $command",
         private val type       : CommandType = ANY,
         private val permission : String?     = null
-) {
+) : BotAction {
+    protected val self = Bot.api.selfUser
+
     abstract fun execute(args: Array<String>, channel: MessageChannel, user: User)
 
     operator fun component1() = command

@@ -13,18 +13,29 @@ import dungeonkit.data.tiles.Tile
 import dungeonkit.data.tiles.Tiles
 import dungeonkit.data.tiles.binding.CharTileMap
 import dungeonkit.renderer.Renderer
+import io.atrius.manager.Bot
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.entities.Icon
 import net.dv8tion.jda.api.entities.MessageChannel
 import net.dv8tion.jda.api.entities.User
+import java.io.IOException
+import java.net.URL
+import java.time.Duration
+import java.time.LocalTime
 import kotlin.random.Random
 
 fun main(args: Array<String>) = Bot.start(args) {
-    CommandManager.register(Ping, Status, CoinFlip, Dungen)
+    Bot.register(
+            Ping, Status, CoinFlip,
+            Dungen, Time, Egg, PFP,
+            Uptime
+    )
 }
 
 object Ping : Command("ping") {
     override fun execute(args: Array<String>, channel: MessageChannel, user: User) {
+
         if (!user.isBot) channel.sendMessage(
                 EmbedBuilder().appendDescription("Pong!").build()
         ).submit(true)
@@ -33,7 +44,7 @@ object Ping : Command("ping") {
 
 object Status : Command("status") {
     override fun execute(args: Array<String>, channel: MessageChannel, user: User) {
-        Bot.api.presence.setPresence(
+        self.jda.presence.setPresence(
                 if (args.isNotEmpty()) Activity.playing(args.joinToString(" ")) else null, false
         )
     }
@@ -55,10 +66,52 @@ object Dungen : Command("dungen") {
                     Trim, Denoise, Eval { _, _, tile -> if (tile == Tiles.FLOOR &&
                     random.nextInt(100) > 85) Tiles.EXIT else null })
 
-    override fun execute(args: Array<String>, channel: MessageChannel, user: User) {
+    override fun execute(args: Array<String>, channel: MessageChannel, user: User) =
         dungeon.render(TextChannelRenderer(channel))
+}
+
+object Time : Command("time") {
+    override fun execute(args: Array<String>, channel: MessageChannel, user: User) {
+        val time = LocalTime.now()
+        channel.sendMessage(
+                "The current time is ${time.hour % 12}:${time.minute} ${if (time.hour > 12) "P" else "A"}M"
+        ).submit(true)
     }
 }
+
+object Egg : Command("egg") {
+    override fun execute(args: Array<String>, channel: MessageChannel, user: User) {
+        channel.sendMessage(":egg:").submit(true)
+    }
+}
+
+object PFP : Command("pfp") {
+    override fun execute(args: Array<String>, channel: MessageChannel, user: User) {
+        if (args.isEmpty())
+            return
+        try {
+            self.manager.setAvatar(args[0].icon).submit(true)
+            channel.sendMessage("Avatar updated!").submit(true)
+        } catch (e: IOException) {
+            channel.sendMessage("Couldn't set profile picture!").submit(true)
+        }
+    }
+}
+
+val String.icon: Icon
+    get() = Icon.from(URL(this).openConnection().apply {
+        setRequestProperty("User-Agent", "Mozilla/5.0") }.getInputStream())
+
+object Uptime : Command("uptime") {
+    private val init = LocalTime.now()
+
+    override fun execute(args: Array<String>, channel: MessageChannel, user: User) {
+        val difference = Duration.between(init, LocalTime.now())
+        channel.sendMessage("Bot has been online for ${difference.toHours()} hours and ${difference.toMinutes() % 60} minutes.").submit()
+    }
+}
+
+
 
 data class TextChannelRenderer(
      val channel: MessageChannel

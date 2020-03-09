@@ -25,7 +25,7 @@ object Bot {
 
     fun register(vararg actions: BotAction) {
         for (action in actions) when(action) {
-            is Command -> Commands.register(action)
+            is Command  -> Commands.register(action)
             is Listener -> Events.register(action)
         }
     }

@@ -10,17 +10,19 @@ object XPService : Service("xp") {
     private val xp = hashMapOf<Long, Long>()
 
     override fun execute(args: Array<String>, channel: MessageChannel, user: User) {
-        // Make sure an argument is specified
-        if (args.isEmpty())
-            return
+        val guild = (channel as GuildChannel).guild
         // Find the target or throw an error
-        val target  = (channel as GuildChannel).guild.getMembersByNickname(args[0], true).firstOrNull() ?: run {
+        val target = if (args.isNotEmpty())
+            guild.members.firstOrNull {
+                it.nickname?.contains(args[0], true) ?: false || it.user.name.contains(args[0], true)
+            }
+        else guild.getMember(user)
+        if (target == null) {
             channel.sendMessage("Couldn't find that user!").submit()
-            return
+        } else {
+            val amount = xp[target.idLong] ?: 0
+            channel.sendMessage("${target.effectiveName} has $amount experience!").submit()
         }
-        // Get the user's amount
-        val amount = xp[target.idLong] ?: 0
-        channel.sendMessage("${target.nickname} has $amount experience!").submit()
     }
 
     override fun onMessageReceived(event: MessageReceivedEvent) = event.author.run {

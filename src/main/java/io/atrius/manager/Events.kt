@@ -1,12 +1,19 @@
 package io.atrius.manager
 
-import io.atrius.action.Listener
+import net.dv8tion.jda.api.events.GenericEvent
+import net.dv8tion.jda.api.hooks.EventListener
 
-object Events {
+object Events : EventListener {
 
-    fun register(vararg events: Listener) =
-            Bot.api.addEventListener(events)
+    private val events = arrayListOf<EventListener>()
 
-    fun unregister(vararg events: Listener) =
-            Bot.api.removeEventListener(events)
+    override fun onEvent(event: GenericEvent) = events.forEach {
+        it.onEvent(event)
+    }
+
+    fun register(vararg events: EventListener) =
+            this.events.addAll(events)
+
+    fun unregister(vararg events: EventListener) =
+            this.events.removeAll(events)
 }

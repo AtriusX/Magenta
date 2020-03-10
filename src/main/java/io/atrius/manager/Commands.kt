@@ -1,22 +1,22 @@
 package io.atrius.manager
 
-import io.atrius.action.Command
+import io.atrius.action.BaseCommand
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import java.util.logging.Logger
 
-object Commands : Iterable<Command>, ListenerAdapter() {
+object Commands : Iterable<BaseCommand>, ListenerAdapter() {
 
     private val logger   = Logger.getLogger("CM")
-    private val commands = arrayListOf<Command>()
+    private val commands = arrayListOf<BaseCommand>()
 
     val activeCommands: Int
         get() = commands.size
 
-    fun register(vararg commands: Command) =
+    fun register(vararg commands: BaseCommand) =
             Commands.commands.addAll(commands)
 
-    fun unregister(vararg commands: Command) =
+    fun unregister(vararg commands: BaseCommand) =
             Commands.commands.removeAll(commands)
 
     override fun onMessageReceived(event: MessageReceivedEvent) = event.run {
@@ -43,5 +43,5 @@ object Commands : Iterable<Command>, ListenerAdapter() {
         }
     }
 
-    override fun iterator(): Iterator<Command> = commands.iterator()
+    override fun iterator(): Iterator<BaseCommand> = commands.iterator()
 }

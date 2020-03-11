@@ -8,7 +8,8 @@ fun main(args: Array<String>) = Bot.start(args) {
     Bot.register(
             Ping, Status, CoinFlip,
             Dungen, Time, Egg, PFP,
-            Uptime, XPService, DoItToEm
+            Uptime, XPService, DoItToEm,
+            Google
     )
 
 //    Events.register(XPService())

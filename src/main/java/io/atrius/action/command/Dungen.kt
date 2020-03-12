@@ -26,8 +26,8 @@ object Dungen : Command("dungen") {
 
     private val dungeon: Dungeon<ColorMap>
         get() = DungeonKit
-                .create(dimension = 500 by 500, tileMap = ColorMap(), seed = random.nextInt())
-                .steps(MindlessWanderer(50, 650, newTileBias = 0.95, maxRetries = 10),
+                .create(dimension = 100 by 100, tileMap = ColorMap, seed = random.nextInt())
+                .steps(MindlessWanderer(50, 650, newTileBias = 0.99, maxRetries = 10),
                         Trim, Denoise, Eval { _, _, tile -> if (tile == Tiles.FLOOR &&
                         random.nextInt(100) > 85) Tiles.EXIT else null })
 
@@ -60,7 +60,7 @@ data class TextChannelRenderer(
 
 data class ImageRenderer(
         val channel  : MessageChannel,
-        val scale: Int = 25
+        val scale    : Int = 25
 ) : Renderer<ColorMap> {
 
     override fun render(map: Grid<Tile>, tileMap: ColorMap) {
@@ -74,7 +74,7 @@ data class ImageRenderer(
     }
 }
 
-class ColorMap : TileMap<Int> {
+object ColorMap : TileMap<Int> {
     override val default: TileBinding<Tile, Int>
         get() = Tiles.WALL bind 0x0
     override val primary: TileBinding<Tile, Int>

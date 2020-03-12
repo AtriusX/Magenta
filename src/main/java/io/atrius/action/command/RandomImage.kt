@@ -20,13 +20,15 @@ object RandomImage : Command("randomimage") {
                 img.square(x, y, step, (0xFF shl 24) or Random.nextInt(0xFFFFFF))
             }
         }
-        val baos = ByteArrayOutputStream()
-        ImageIO.write(img, "png", baos)
-        channel.sendFile(baos.toByteArray(), "img.png").submit()
+        channel.sendFile(img.toByteArray(), "img.png").submit()
     }
 
-    private fun BufferedImage.square(x: Int, y: Int, size: Int, color: Int) {
-        for (dx in x until x + size) for (dy in y until y + size)
-            setRGB(dx, dy, color)
-    }
+
 }
+
+fun BufferedImage.square(x: Int, y: Int, size: Int, color: Int) {
+    for (dx in x until x + size) for (dy in y until y + size) setRGB(dx, dy, color)
+}
+
+fun BufferedImage.toByteArray(): ByteArray = ByteArrayOutputStream()
+        .also { ImageIO.write(this, "png", it) }.toByteArray()

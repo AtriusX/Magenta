@@ -9,7 +9,7 @@ fun main(args: Array<String>) = Bot.start(args) {
             Ping, Status, CoinFlip,
             Dungen, Time, Egg, PFP,
             Uptime, XPService, DoItToEm,
-            Google
+            Google, RandomImage
     )
 
 //    Events.register(XPService())

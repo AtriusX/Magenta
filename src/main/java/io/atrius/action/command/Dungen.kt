@@ -5,16 +5,14 @@ import dungeonkit.DungeonKit
 import dungeonkit.DungeonKit.random
 import dungeonkit.data.Grid
 import dungeonkit.data.by
+import dungeonkit.data.steps.BinarySplit
 import dungeonkit.data.steps.Denoise
 import dungeonkit.data.steps.Eval
-import dungeonkit.data.steps.MindlessWanderer
 import dungeonkit.data.steps.Trim
 import dungeonkit.data.tiles.Tile
 import dungeonkit.data.tiles.Tiles
-import dungeonkit.data.tiles.binding.CharTileMap
-import dungeonkit.data.tiles.binding.TileBinding
-import dungeonkit.data.tiles.binding.TileMap
-import dungeonkit.data.tiles.binding.bind
+import dungeonkit.data.tiles.binding.SimpleCharTileMap
+import dungeonkit.data.tiles.binding.SimpleColorTileMap
 import dungeonkit.renderer.Renderer
 import io.atrius.action.Command
 import net.dv8tion.jda.api.entities.MessageChannel
@@ -24,10 +22,10 @@ import kotlin.random.Random
 
 object Dungen : Command("dungen") {
 
-    private val dungeon: Dungeon<ColorMap>
+    private val dungeon: Dungeon<SimpleColorTileMap>
         get() = DungeonKit
-                .create(dimension = 100 by 100, tileMap = ColorMap, seed = random.nextInt())
-                .steps(MindlessWanderer(50, 650, newTileBias = 0.99, maxRetries = 10),
+                .create(dimension = 50 by 30, tileMap = SimpleColorTileMap, seed = random.nextInt())
+                .steps(/*MindlessWanderer(50, 650, newTileBias = 0.9, maxRetries = 10)*/BinarySplit(2),
                         Trim, Denoise, Eval { _, _, tile -> if (tile == Tiles.FLOOR &&
                         random.nextInt(100) > 85) Tiles.EXIT else null })
 
@@ -37,9 +35,9 @@ object Dungen : Command("dungen") {
 
 data class TextChannelRenderer(
         val channel: MessageChannel
-) : Renderer<CharTileMap> {
+) : Renderer<SimpleCharTileMap> {
 
-    override fun render(map: Grid<Tile>, tileMap: CharTileMap) {
+    override fun render(map: Grid<Tile>, tileMap: SimpleCharTileMap) {
         // Enforce the discord character limit
         val type = if (Random.nextBoolean()) "cs" else "fix"
         if (map.area.area > 1990)
@@ -61,24 +59,14 @@ data class TextChannelRenderer(
 data class ImageRenderer(
         val channel  : MessageChannel,
         val scale    : Int = 25
-) : Renderer<ColorMap> {
+) : Renderer<SimpleColorTileMap> {
 
-    override fun render(map: Grid<Tile>, tileMap: ColorMap) {
+    override fun render(map: Grid<Tile>, tileMap: SimpleColorTileMap) {
         val (width, height) = map.area
         val img    = BufferedImage(width * scale, height * scale, BufferedImage.TYPE_INT_RGB)
         for (y in 0 until height)
-            for (x in 0 until width) {
+            for (x in 0 until width)
                 img.square(x * scale, y * scale, scale, tileMap[map[x, y]].data)
-            }
         channel.sendFile(img.toByteArray(), "dungeon.png").submit()
     }
-}
-
-object ColorMap : TileMap<Int> {
-    override val default: TileBinding<Tile, Int>
-        get() = Tiles.WALL bind 0x0
-    override val primary: TileBinding<Tile, Int>
-        get() = Tiles.FLOOR bind 0xDDDDDD
-    override val secondary: TileBinding<Tile, Int>
-        get() = Tiles.EXIT bind 0xAAAAAA
 }

@@ -4,15 +4,12 @@ import dungeonkit.Dungeon
 import dungeonkit.DungeonKit
 import dungeonkit.DungeonKit.random
 import dungeonkit.data.Grid
-import dungeonkit.data.by
-import dungeonkit.data.steps.BinarySplit
-import dungeonkit.data.steps.Denoise
-import dungeonkit.data.steps.Eval
-import dungeonkit.data.steps.Trim
+import dungeonkit.data.steps.*
 import dungeonkit.data.tiles.Tile
 import dungeonkit.data.tiles.Tiles
 import dungeonkit.data.tiles.binding.SimpleCharTileMap
 import dungeonkit.data.tiles.binding.SimpleColorTileMap
+import dungeonkit.dim
 import dungeonkit.renderer.Renderer
 import io.atrius.action.Command
 import net.dv8tion.jda.api.entities.MessageChannel
@@ -24,13 +21,14 @@ object Dungen : Command("dungen") {
 
     private val dungeon: Dungeon<SimpleColorTileMap>
         get() = DungeonKit
-                .create(dimension = 50 by 30, tileMap = SimpleColorTileMap, seed = random.nextInt())
-                .steps(/*MindlessWanderer(50, 650, newTileBias = 0.9, maxRetries = 10)*/BinarySplit(2),
-                        Trim, Denoise, Eval { _, _, tile -> if (tile == Tiles.FLOOR &&
+                .create(dimension = 150.dim, tileMap = SimpleColorTileMap, seed = random.nextInt(), logging = false)
+                .steps(
+                    Automaton(10, 0.375), Trim, Carve, Denoise, MindlessWanderer(50, 80, true, 0.95),
+                        Trim, Eval { _, _, tile -> if (tile == Tiles.FLOOR &&
                         random.nextInt(100) > 85) Tiles.EXIT else null })
 
     override fun execute(args: Array<String>, channel: MessageChannel, user: User) =
-            dungeon.render(ImageRenderer(channel))
+            dungeon.render(ImageRenderer(dungeon.name, channel))
 }
 
 data class TextChannelRenderer(
@@ -57,8 +55,9 @@ data class TextChannelRenderer(
 }
 
 data class ImageRenderer(
-        val channel  : MessageChannel,
-        val scale    : Int = 25
+        val name   : String,
+        val channel: MessageChannel,
+        val scale  : Int = 25
 ) : Renderer<SimpleColorTileMap> {
 
     override fun render(map: Grid<Tile>, tileMap: SimpleColorTileMap) {
@@ -67,6 +66,7 @@ data class ImageRenderer(
         for (y in 0 until height)
             for (x in 0 until width)
                 img.square(x * scale, y * scale, scale, tileMap[map[x, y]].data)
+        channel.sendMessage(name).submit()
         channel.sendFile(img.toByteArray(), "dungeon.png").submit()
     }
 }

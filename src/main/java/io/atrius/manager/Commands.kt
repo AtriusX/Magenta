@@ -36,9 +36,9 @@ object Commands : Iterable<BaseCommand>, ListenerAdapter() {
             // Skip if the commands or channel type don't match
             if (!content.startsWith("!$command", true) || !type.meets(channelType))
                 continue
+            logger.info("'$command' executed by ${author.name} in #${channel.name}")
             // Execute the command
             c.execute(args.toTypedArray(), channel, author)
-            logger.info("'$command' executed by ${author.name} in #${channel.name}")
             return
         }
     }
